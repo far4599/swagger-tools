@@ -33,7 +33,7 @@ func (w writer) Write(v *spec.Swagger) error {
 		return err
 	}
 
-	return ioutil.WriteFile(w.filePath, byteValue, 0644)
+	return ioutil.WriteFile(w.filePath, byteValue, 0600)
 }
 
 func marshal(v interface{}, format outputFormat) ([]byte, error) {

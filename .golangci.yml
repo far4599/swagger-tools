@@ -1,0 +1,38 @@
+run:
+  concurrency: 8
+  issues-exit-code: 1
+  timeout: 1m
+  tests: true
+output:
+  print-issued-lines: true
+  print-linter-name: true
+linters-settings:
+  errcheck:
+    check-blank: true
+  godot:
+    scope: all
+    capital: true
+  govet:
+    check-shadowing: true
+  goconst:
+    min-len:         2
+    min-occurrences: 2
+  revive:
+    max-open-files: 2048
+    ignore-generated-header: true
+    severity: error
+    rules:
+      - name: exported
+        disabled: true
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - goconst
+    - gosec
+    - govet
+    - ineffassign
+    - revive
+    - typecheck
+    - unused
