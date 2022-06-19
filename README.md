@@ -1,2 +1,7 @@
 # swagger-tools
-Merge swagger (openapi v2) files easily
+Merge several OpenAPI v2 JSON files (specs) into one file.
+
+```shell
+swagger-tools merge ./dir_with_specs
+```
+
