@@ -17,6 +17,7 @@ func NewApp() *app {
 	}
 
 	rootCmd.AddCommand(commands.NewMergeCommand())
+	rootCmd.AddCommand(commands.NewServeCommand())
 
 	return &app{
 		rootCmd: rootCmd,

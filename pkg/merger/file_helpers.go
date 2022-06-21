@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/spec"
 
 	"github.com/far4599/swagger-openapiv2-merge/pkg/file"
+	"github.com/far4599/swagger-openapiv2-merge/pkg/marshaller"
 )
 
 func GetSpecFromFile(filename string) (*spec.Swagger, error) {
@@ -17,7 +18,7 @@ func GetSpecFromFile(filename string) (*spec.Swagger, error) {
 }
 
 func WriteSpecToFile(base *spec.Swagger, filename string) error {
-	return file.NewFileWriter(filename, file.JSONFormat).Write(base)
+	return file.NewFileWriter(filename, marshaller.JSONFormat).Write(base)
 }
 
 func LoadSpecsFromDir(dir, filterExt string, withSubdir bool) ([]*spec.Swagger, error) {

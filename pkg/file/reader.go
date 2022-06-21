@@ -1,12 +1,11 @@
 package file
 
 import (
-	"encoding/json"
 	"io/ioutil"
 
 	"github.com/go-openapi/spec"
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
+
+	"github.com/far4599/swagger-openapiv2-merge/pkg/marshaller"
 )
 
 type fileReader struct {
@@ -25,25 +24,5 @@ func (r fileReader) Read(out *spec.Swagger) error {
 		return err
 	}
 
-	return unmarshal(byteValue, out)
-}
-
-func isJSON(content []byte) bool {
-	return json.Unmarshal(content, new(json.RawMessage)) == nil
-}
-
-func unmarshal(content []byte, out interface{}) error {
-	if isJSON(content) {
-		err := json.Unmarshal(content, out)
-		if err != nil {
-			return errors.Wrapf(ErrInvalidJSONFormat, "error: %v", err)
-		}
-	} else {
-		err := yaml.Unmarshal(content, out)
-		if err != nil {
-			return errors.Wrapf(ErrInvalidYAMLFormat, "error: %v", err)
-		}
-	}
-
-	return nil
+	return marshaller.Unmarshal(byteValue, out)
 }
