@@ -10,7 +10,9 @@ import (
 
 func NewServeCommand() *cobra.Command {
 	var (
-		httpPort string
+		httpPort              string
+		specHostnameOverwrite string
+		openUrl               bool
 	)
 
 	serveCmd := &cobra.Command{
@@ -32,11 +34,15 @@ func NewServeCommand() *cobra.Command {
 			return stoplight_elements.
 				NewServer(filePath).
 				WithPort(httpPort).
+				WithHostname(specHostnameOverwrite).
+				WithOpenURL(openUrl).
 				Run()
 		},
 	}
 
 	serveCmd.PersistentFlags().StringVarP(&httpPort, "port", "p", "8080", "Port to serve UI on")
+	serveCmd.PersistentFlags().StringVarP(&specHostnameOverwrite, "hostname", "", "", "A new hostname to overwrite one in the spec")
+	serveCmd.PersistentFlags().BoolVarP(&openUrl, "open", "o", false, "Open URL after server is loaded")
 
 	return serveCmd
 }
