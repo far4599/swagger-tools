@@ -10,14 +10,15 @@ import (
 
 func NewServeCommand() *cobra.Command {
 	var (
-		httpPort              string
-		specHostnameOverwrite string
-		openUrl               bool
+		serverHost, serverPort string
+		specHostnameOverwrite  string
+		withOpenUrl            bool
 	)
 
 	serveCmd := &cobra.Command{
 		Use:   "serve path",
-		Short: "Serve UI for swagger specification",
+		Short: "Serve web UI for swagger specification",
+		Long:  "It starts the web server with pretty UI for showing the swagger specification. Reload the page to show the changes made to the spec.",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var (
@@ -33,16 +34,18 @@ func NewServeCommand() *cobra.Command {
 
 			return stoplight_elements.
 				NewServer(filePath).
-				WithPort(httpPort).
+				WithServerHost(serverHost).
+				WithServerPort(serverPort).
 				WithHostname(specHostnameOverwrite).
-				WithOpenURL(openUrl).
+				WithOpenURL(withOpenUrl).
 				Run()
 		},
 	}
 
-	serveCmd.PersistentFlags().StringVarP(&httpPort, "port", "p", "8080", "Port to serve UI on")
+	serveCmd.PersistentFlags().StringVarP(&serverHost, "host", "", "127.0.0.1", "Server host to serve UI on")
+	serveCmd.PersistentFlags().StringVarP(&serverPort, "port", "p", "8080", "Server port to serve UI on")
 	serveCmd.PersistentFlags().StringVarP(&specHostnameOverwrite, "hostname", "", "", "A new hostname to overwrite one in the spec")
-	serveCmd.PersistentFlags().BoolVarP(&openUrl, "open", "o", false, "Open URL after server is loaded")
+	serveCmd.PersistentFlags().BoolVarP(&withOpenUrl, "open", "o", false, "Open URL in browser after server is started")
 
 	return serveCmd
 }

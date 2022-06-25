@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"runtime"
 	"time"
@@ -24,10 +25,11 @@ var staticFS embed.FS
 var indexTemplate []byte
 
 type elementsServer struct {
-	specFilePath string
-	httpPort     string
-	hostname     string
-	openUrl      bool
+	specFilePath                   string
+	httpServerHost, httpServerPort string
+
+	hostname string
+	openUrl  bool
 }
 
 func NewServer(specFilePath string) *elementsServer {
@@ -41,8 +43,13 @@ func (e *elementsServer) WithHostname(hostname string) *elementsServer {
 	return e
 }
 
-func (e *elementsServer) WithPort(port string) *elementsServer {
-	e.httpPort = port
+func (e *elementsServer) WithServerHost(host string) *elementsServer {
+	e.httpServerHost = host
+	return e
+}
+
+func (e *elementsServer) WithServerPort(port string) *elementsServer {
+	e.httpServerPort = port
 	return e
 }
 
@@ -85,13 +92,18 @@ func (e *elementsServer) newRouter() chi.Router {
 		w.Write(fileContent)
 	})
 
-	r.Handle("/static/*", CacheStatic(http.FileServer(http.FS(staticFS))))
+	r.Handle("/static/*", CacheStatic(http.FileServer(http.FS(staticFS)), 365*24*time.Hour))
 
 	return r
 }
 
 func (e elementsServer) Run() (err error) {
-	url := fmt.Sprintf("http://localhost:%s", e.httpPort)
+	serverHost := e.httpServerHost + ":" + e.httpServerPort
+
+	serverUrl, err := url.Parse("http://" + serverHost)
+	if err != nil {
+		return err
+	}
 
 	if e.openUrl {
 		go func() {
@@ -101,21 +113,22 @@ func (e elementsServer) Run() (err error) {
 
 			time.Sleep(1 * time.Second)
 
-			err = openUrl(url)
+			err = openUrl(serverUrl.String())
 			if err != nil {
 				fmt.Printf("failed to open url: %v\n", err)
 			}
 		}()
 	}
 
-	fmt.Printf("Serving swagger UI at: %s - You may open this link in browser.\n", url)
+	fmt.Printf("Serving swagger UI at: %s - You may open this link in browser.\n", serverUrl.String())
 	fmt.Println("Press Ctrl+C to stop the server.")
-	return http.ListenAndServe(":"+e.httpPort, e.newRouter())
+	return http.ListenAndServe(serverHost, e.newRouter())
 }
 
-func CacheStatic(next http.Handler) http.Handler {
+func CacheStatic(next http.Handler, duration time.Duration) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Cache-Control", "public, max-age=31556952")
+		value := fmt.Sprintf("public, max-age=%d", int64(duration.Seconds()))
+		w.Header().Add("Cache-Control", value)
 
 		next.ServeHTTP(w, r)
 	})
