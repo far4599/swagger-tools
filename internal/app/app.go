@@ -10,10 +10,11 @@ type app struct {
 	rootCmd *cobra.Command
 }
 
-func NewApp() *app {
+func NewApp(version string) *app {
 	rootCmd := &cobra.Command{
-		Use:   "swagger-tools",
-		Short: "Set of tools to work with swagger files.",
+		Use:     "swagger-tools",
+		Short:   "Set of tools to work with swagger files.",
+		Version: version,
 	}
 
 	rootCmd.AddCommand(commands.NewMergeCommand())
